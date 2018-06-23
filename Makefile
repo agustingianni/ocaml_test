@@ -3,19 +3,19 @@
 default: build
 
 build:
-	jbuilder build main.exe
+	jbuilder build --verbose --root src main.exe
 
 test:
-	jbuilder runtest -f
+	jbuilder runtest -f --root src
 
 install:
-	jbuilder install
+	jbuilder install --root src
 
 uninstall:
-	jbuilder uninstall
+	jbuilder uninstall --root src
 
 clean:
-	jbuilder clean
+	jbuilder clean --root src
 	
 run:
-	./_build/default/main.exe
+	./src/_build/default/main.exe
