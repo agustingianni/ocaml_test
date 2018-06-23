@@ -1,0 +1,9 @@
+(executable
+  ((name "main")
+   (libraries (core core_extended oUnit))))
+
+(ocamllex (lexer))
+
+(menhir
+  ((modules (parser))
+   (flags ("--list-errors"))))
