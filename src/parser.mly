@@ -50,16 +50,46 @@
 %type <Ast.definition list> program
 %type <Ast.expression> expression
 
-
 (* End of declarations. *)
 %%
 
 (* ------------------------ Expressions ------------------------ *)
+unary_op:
+    | PLUS                                                          { PLUS }
+    | MINUS                                                         { MINUS }
+    | BANG                                                          { NOT }
+    | TILDE                                                         { BNOT }
+
+shift_op:
+    | LTLT                                                          { SHL }
+    | GTGT                                                          { SHR }
+
+relational_op:
+    | LT                                                            { LT }
+    | GT                                                            { GT }
+    | LEQ                                                           { LE }
+    | GEQ                                                           { GE }
+    | IN                                                            { IN }
+
+equality_op:
+    | EQEQ                                                          { EQ }
+    | NEQ                                                           { NE }
+
+additive_op:
+    | PLUS                                                          { PLUS }
+    | MINUS                                                         { MINUS }
+
+multiplicative_op:
+    | STAR                                                          { MUL }
+    | SLASH                                                         { FDIV }
+    | DIV                                                           { IDIV }
+    | MOD                                                           { MOD }
+    | COLON                                                         { CONCAT }
+
 argument_expression_list:
     | separated_list(COMMA, assignment_expression)                  { $1 }
 
 paren_comma_expression:
-    | LPAREN RPAREN                                                 { [] }
     | LPAREN argument_expression_list RPAREN                        { $2 }
 
 primary_expression:
@@ -77,44 +107,30 @@ postfix_expression:
 
 unary_expression:
     | postfix_expression                                            { $1 }
-    | PLUS cast_expression                                          { UnaryExpression (PLUS, $2) }
-    | MINUS cast_expression                                         { UnaryExpression (MINUS, $2) }
-    | BANG cast_expression                                          { UnaryExpression (NOT, $2) }
-    | TILDE cast_expression                                         { UnaryExpression (BNOT, $2) }
+    | unary_op cast_expression                                      { UnaryExpression ($1, $2) }
 
 cast_expression:
     | unary_expression                                              { $1 }
 
 multiplicative_expression:
     | cast_expression                                               { $1 }
-    | multiplicative_expression STAR cast_expression                { BinaryExpression (MUL, $1, $3) }
-    | multiplicative_expression SLASH cast_expression               { BinaryExpression (FDIV, $1, $3) }
-    | multiplicative_expression DIV cast_expression                 { BinaryExpression (IDIV, $1, $3) }
-    | multiplicative_expression MOD cast_expression                 { BinaryExpression (MOD, $1, $3) }
-    | multiplicative_expression COLON cast_expression               { BinaryExpression (CONCAT, $1, $3) }
+    | multiplicative_expression multiplicative_op cast_expression   { BinaryExpression ($2, $1, $3) }
 
 additive_expression:
     | multiplicative_expression                                     { $1 }
-    | additive_expression PLUS multiplicative_expression            { BinaryExpression (ADD, $1, $3) }
-    | additive_expression MINUS multiplicative_expression           { BinaryExpression (SUB, $1, $3) }
+    | additive_expression additive_op multiplicative_expression     { BinaryExpression ($2, $1, $3) }
 
 shift_expression:
     | additive_expression                                           { $1 }
-    | shift_expression LTLT additive_expression                     { BinaryExpression (SHL, $1, $3) }
-    | shift_expression GTGT additive_expression                     { BinaryExpression (SHR, $1, $3) }
+    | shift_expression shift_op additive_expression                 { BinaryExpression ($2, $1, $3) }
 
 relational_expression:
     | shift_expression                                              { $1 }
-    | relational_expression LT shift_expression                     { BinaryExpression (LT, $1, $3) }
-    | relational_expression GT shift_expression                     { BinaryExpression (GT, $1, $3) }
-    | relational_expression LEQ shift_expression                    { BinaryExpression (LE, $1, $3) }
-    | relational_expression GEQ shift_expression                    { BinaryExpression (GE, $1, $3) }
-    | relational_expression IN shift_expression                     { BinaryExpression (IN, $1, $3) }
+    | relational_expression relational_op shift_expression          { BinaryExpression ($2, $1, $3) }
 
 equality_expression:
     | relational_expression                                         { $1 }
-    | equality_expression EQEQ relational_expression                { BinaryExpression (EQ, $1, $3) }
-    | equality_expression NEQ relational_expression                 { BinaryExpression (NE, $1, $3) }
+    | equality_expression equality_op relational_expression         { BinaryExpression ($2, $1, $3) }
 
 bitwise_and_expression:
     | equality_expression                                           { $1 }
@@ -155,17 +171,13 @@ constant_expression:
 
 (* ------------------------ Statements ------------------------ *)
 
-
-
-
 (* A program consisting of a translation unit. *)
 program:
-    | translation_unit_file     			                        { $1 }
+    | translation_unit_file EOF    			                        { $1 }
 
 (* Collection of external declarations. *)
 translation_unit_file:
-    | external_declaration translation_unit_file                    { [$1] @ $2 }
-    | external_declaration EOF                                      { [$1] }
+    | list(external_declaration)                                    { $1 }
 
 (* Variable/function definitions outside a function. *)
 external_declaration:
@@ -179,8 +191,7 @@ variable_definition:
 
 (* Definition of a function. *)
 function_definition:
-    | qualified_type IDENTIFIER LPAREN RPAREN block                 { FunctionDefinition ($1, $2, [], $5) }
-    | qualified_type IDENTIFIER LPAREN parameter_list RPAREN block  { FunctionDefinition ($1, $2, $4, $6) }
+    | qualified_type IDENTIFIER LPAREN parameter_list RPAREN compound_statement  { FunctionDefinition ($1, $2, $4, $6) }
 
 (* Fully qualified type. *)
 qualified_type:
@@ -207,31 +218,40 @@ parameter_list:
 parameter_declaration:
     | qualified_type IDENTIFIER                                     { FunctionParameter ($1, $2) }
 
-block:
-    | LBRACE block_element_list RBRACE                              { Program $2 }
+block_element:
+    | variable_definition                                           { DefinitionStatement ($1) }
+    | statement                                                     { $1 }
 
 block_element_list:
-    |                                                               { [] }
-    | variable_definition block_element_list                        { [ DefinitionStatement $1 ] @ $2 }
-    | statement block_element_list                                  { [$1] @ $2 }
+    | list(block_element)                                           { $1 }
 
-case_statement:
-    | CASE constant_expression OF case_block ENDCASE                { CaseStatement ($2, $4) }
+labeled_statement:
+    | WHEN constant_expression statement                            { WhenStatement ($2, $3) }
+    | OTHERWISE statement                                           { OtherwiseStatement ($2) }
 
-case_block:
-    |                                                               { [] }
-    | WHEN constant_expression statement_list case_block            { [WhenStatement ($2, $3)] @ $4 }
-    | OTHERWISE statement_list case_block                           { [OtherwiseStatement ($2)] @ $3 }
+compound_statement:
+    | LBRACE block_element_list RBRACE                              { CompoundStatement ($2) }
 
-statement:
-    | case_statement                                                { $1 }
-    | FOR expression TO expression statement_list ENDFOR            { ForStatement ($2, $4, $5) }
-    | REPEAT statement_list UNTIL expression                        { RepeatStatement ($2, $4) }
+expression_statement:
+    | expression SEMICOLON                                          { ExpressionStatement ($1) }
+
+selection_statement:
+    | IF expression THEN statement ENDIF                            { IfStatement ($2, $4, EmptyStatement) }
+    | IF expression THEN statement ELSE statement ENDIF             { IfStatement ($2, $4, $6) }
+    | CASE expression OF statement ENDCASE                          { CaseStatement ($2, $4) }
+
+iteration_statement:
+    | FOR expression TO expression statement ENDFOR                 { ForStatement ($2, $4, $5) }
+    | REPEAT statement UNTIL expression                             { RepeatStatement ($2, $4) }
+
+jump_statement:
     | RETURN SEMICOLON                                              { ReturnStatement (EmptyExpression) }
     | RETURN expression SEMICOLON                                   { ReturnStatement ($2) }
-    | IF expression THEN statement_list ENDIF                       { IfStatement ($2, $4, []) }
-    | IF expression THEN statement_list ELSE statement_list ENDIF   { IfStatement ($2, $4, $6) }
 
-statement_list:
-    | statement                                                     { [$1] }
-    | statement_list statement                                      { $1 @ [$2] }
+statement:
+    | expression_statement                                          { $1 }
+    | labeled_statement                                             { $1 }
+    | compound_statement                                            { $1 }
+    | selection_statement                                           { $1 }
+    | iteration_statement                                           { $1 }
+    | jump_statement                                                { $1 }

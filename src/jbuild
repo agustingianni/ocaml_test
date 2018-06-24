@@ -6,4 +6,4 @@
 
 (menhir
   ((modules (parser))
-   (flags ("--list-errors" "--comment" "--explain" "--unused-tokens"))))
+   (flags ("-v" "--list-errors" "--comment" "--explain" "--unused-tokens"))))

@@ -63,17 +63,19 @@ and constant =
 
 and definition =
   | VariableDefinition of qualified_type * string * expression option
-  | FunctionDefinition of qualified_type * string * function_parameter list * program
+  | FunctionDefinition of qualified_type * string * function_parameter list * statement
 
 and statement =
   | EmptyStatement
+  | ExpressionStatement of expression
+  | CompoundStatement of statement list
   | BreakStatement
-  | IfStatement of expression * statement list * statement list
-  | CaseStatement of expression * statement list
-  | WhenStatement of expression * statement list
-  | OtherwiseStatement of statement list
-  | ForStatement of expression * expression * statement list
-  | RepeatStatement of statement list * expression
+  | IfStatement of expression * statement * statement
+  | CaseStatement of expression * statement
+  | WhenStatement of expression * statement
+  | OtherwiseStatement of statement
+  | ForStatement of expression * expression * statement
+  | RepeatStatement of statement * expression
   | ReturnStatement of expression
   | DefinitionStatement of definition
 
