@@ -56,8 +56,7 @@
 
 (* ------------------------ Expressions ------------------------ *)
 argument_expression_list:
-    | assignment_expression                                         { [$1] }
-    | argument_expression_list COMMA assignment_expression          { $1 @ [$3] }
+    | separated_list(COMMA, assignment_expression)                  { $1 }
 
 paren_comma_expression:
     | LPAREN RPAREN                                                 { [] }
@@ -203,15 +202,10 @@ type_qualifier:
 
 (* List of function parameters separated by a comma. *)
 parameter_list:
-    | parameter_declaration                                         { [$1] }
-    | parameter_list COMMA parameter_declaration                    { $1 @ [$3] }
+    | separated_list(COMMA, parameter_declaration)                  { $1 }
 
 parameter_declaration:
     | qualified_type IDENTIFIER                                     { FunctionParameter ($1, $2) }
-
-// enum_list:
-//     | IDENTIFIER                                                    { [$1] }
-//     | enum_list COMMA IDENTIFIER                                    { $1 @ [$3] }
 
 block:
     | LBRACE block_element_list RBRACE                              { Program $2 }
