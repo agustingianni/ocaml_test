@@ -76,8 +76,8 @@ equality_op:
     | NEQ                                                           { NE }
 
 additive_op:
-    | PLUS                                                          { PLUS }
-    | MINUS                                                         { MINUS }
+    | PLUS                                                          { ADD }
+    | MINUS                                                         { SUB }
 
 multiplicative_op:
     | STAR                                                          { MUL }
