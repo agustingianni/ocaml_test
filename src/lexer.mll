@@ -71,6 +71,10 @@
             | _ -> string
         in
             int_of_string value
+
+    let remove_quotes string =
+        let len = String.length string in
+        String.sub string 1 (len - 2)
 }
 
 (* Lexer definitions: *)
@@ -127,7 +131,7 @@ rule tokenize = parse
     | "/*"                          { multiline_comment lexbuf; tokenize lexbuf }
     | "//"                          { singleline_comment lexbuf; tokenize lexbuf }
     | integer_constant              { INTEGER_CONSTANT (convert_string_to_integer (Lexing.lexeme lexbuf)) }
-    | integer_constant_masked       { INTEGER_CONSTANT_MASKED (Lexing.lexeme lexbuf) }
+    | integer_constant_masked       { INTEGER_CONSTANT_MASKED (remove_quotes (Lexing.lexeme lexbuf)) }
     | "<<"                          { LTLT }
     | ">>"                          { GTGT }
     | "=="                          { EQEQ }
