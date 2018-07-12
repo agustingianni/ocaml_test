@@ -3,7 +3,7 @@
 default: build
 
 build:
-	jbuilder build --verbose --root src main.exe
+	jbuilder build --root src main.exe
 
 test:
 	jbuilder runtest -f --root src
@@ -16,6 +16,6 @@ uninstall:
 
 clean:
 	jbuilder clean --root src
-	
+
 run:
 	./src/_build/default/main.exe
