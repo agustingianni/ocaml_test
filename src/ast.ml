@@ -98,28 +98,28 @@ let unary_operator_to_string operator =
 
 let binary_operator_to_string operator =
   match operator with
-  | ADD -> "ADD"
-  | SUB -> "SUB"
-  | MUL -> "MUL"
-  | IDIV -> "IDIV"
-  | FDIV -> "FDIV"
-  | MOD -> "MOD"
-  | AND -> "AND"
-  | OR -> "OR"
-  | XOR -> "XOR"
-  | BAND -> "BAND"
-  | BOR -> "BOR"
-  | BXOR -> "BXOR"
-  | EQ -> "EQ"
-  | NE -> "NE"
-  | LT -> "LT"
-  | GT -> "GT"
-  | LE -> "LE"
-  | GE -> "GE"
-  | ASSIGN -> "ASSIGN"
-  | CONCAT -> "CONCAT"
-  | SHL -> "SHL"
-  | SHR -> "SHR"
+  | ADD -> "+"
+  | SUB -> "-"
+  | MUL -> "*"
+  | IDIV -> "/"
+  | FDIV -> "/"
+  | MOD -> "%"
+  | AND -> "&"
+  | OR -> "|"
+  | XOR -> "^"
+  | BAND -> "&"
+  | BOR -> "|"
+  | BXOR -> "^"
+  | EQ -> "="
+  | NE -> "!="
+  | LT -> "<"
+  | GT -> ">"
+  | LE -> "<="
+  | GE -> ">="
+  | ASSIGN -> "="
+  | CONCAT -> ":"
+  | SHL -> "<<"
+  | SHR -> ">>"
   | IN -> "IN"
 
 let rec expression_to_string expression = match expression with
@@ -164,3 +164,56 @@ and constant_expression_to_string expression = match expression with
 
 and variable_expression_to_string identifier = match identifier with
   | Identifier(name) ->  Printf.sprintf "VariableExpression { %s }" name
+
+let to_pairs xs =
+  let as_array = Array.of_list xs in
+  match Array.length as_array with
+  | 0 -> []
+  | 1 -> []
+  | n -> Array.to_list (Array.init (n-1) (fun i -> as_array.(i), as_array.(i + 1)))
+
+type branch =
+  | Left
+  | Right
+  | Root
+
+let branch_char branch = match branch with
+  | Left -> "└"
+  | Right -> "┌"
+  | Root -> " "
+
+let build_path path =
+  let pad_chars = function
+  | (Left, Right) -> "│ "
+  | (Right, Left) -> "│ "
+  | _ -> "  "
+  in
+
+  path |> to_pairs |> List.map pad_chars |> String.concat ""
+
+let get_last a = List.hd (List.rev a)
+
+(* Print a horizontal tree of the passed expression tree. *)
+let rec print_tree node path =
+  let branch_corner = branch_char (get_last path) in
+  let path_string = build_path path in
+  match node with
+  | BinaryExpression (op, lhs, rhs) ->
+    begin
+      let value = (binary_operator_to_string op) in
+      print_tree rhs (path @ [Right]);
+      Printf.printf "%s%s─┤ %s\n" path_string branch_corner value;
+      print_tree lhs (path @ [Left]);
+    end
+
+  | ConstantExpression (value) ->
+    begin
+      match value with
+      | BooleanValue (value) -> Printf.printf "%s%s──➤ %b\n" path_string branch_corner value
+      | IntegerValue (value) -> Printf.printf "%s%s──➤ %u\n" path_string branch_corner value
+    end
+
+  | _ ->
+    begin
+      Printf.printf "TODO"
+    end

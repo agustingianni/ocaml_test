@@ -20,6 +20,7 @@
 %token SEMICOLON COMMA DOT
 %token EOF
 %token LIST
+%token EOL
 
 (* Types *)
 %token BIT BITSTRING INTEGER BOOLEAN REAL ENUMERATION ARRAY CONSTANT
@@ -164,7 +165,7 @@ assignment_expression:
     | unary_expression EQ assignment_expression                     { BinaryExpression (ASSIGN, $1, $3) }
 
 expression:
-    | assignment_expression                                         { $1 }
+    | assignment_expression EOL                                     { $1 }
 
 constant_expression:
 	| conditional_expression                                        { $1 }
