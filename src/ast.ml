@@ -194,26 +194,31 @@ let build_path path =
 let get_last a = List.hd (List.rev a)
 
 (* Print a horizontal tree of the passed expression tree. *)
-let rec print_tree node path =
-  let branch_corner = branch_char (get_last path) in
-  let path_string = build_path path in
-  match node with
-  | BinaryExpression (op, lhs, rhs) ->
-    begin
-      let value = (binary_operator_to_string op) in
-      print_tree rhs (path @ [Right]);
-      Printf.printf "%s%s─┤ %s\n" path_string branch_corner value;
-      print_tree lhs (path @ [Left]);
-    end
+let print_tree node =
+  let rec print_tree_int node path =
+    let branch_corner = branch_char (get_last path) in
+    let path_string = build_path path in
+    match node with
+    | BinaryExpression (op, lhs, rhs) ->
+      begin
+        let value = (binary_operator_to_string op) in
+        print_tree_int rhs (path @ [Right]);
+        Printf.printf "%s%s─┤ %s\n" path_string branch_corner value;
+        print_tree_int lhs (path @ [Left]);
+      end
 
-  | ConstantExpression (value) ->
-    begin
-      match value with
-      | BooleanValue (value) -> Printf.printf "%s%s──➤ %b\n" path_string branch_corner value
-      | IntegerValue (value) -> Printf.printf "%s%s──➤ %u\n" path_string branch_corner value
-    end
+    | ConstantExpression (value) ->
+      begin
+        match value with
+        | BooleanValue (value) -> Printf.printf "%s%s──➤ %b\n" path_string branch_corner value
+        | IntegerValue (value) -> Printf.printf "%s%s──➤ %u\n" path_string branch_corner value
+      end
 
-  | _ ->
-    begin
-      Printf.printf "TODO"
-    end
+    | _ ->
+      begin
+        Printf.printf "TODO"
+      end
+
+    in
+
+    print_tree_int node [Root]
