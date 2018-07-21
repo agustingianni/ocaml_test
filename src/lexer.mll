@@ -72,6 +72,9 @@
         in
             int_of_string value
 
+    let convert_string_to_real string =
+        float_of_string string
+
     let remove_quotes string =
         let len = String.length string in
         String.sub string 1 (len - 2)
@@ -117,6 +120,9 @@ let integer_constant =
     | base10_constant
     | base16_constant
 
+let real_constant =
+    base10_constant '.' base10_constant
+
 (* Masked binary numbers *)
 let base2_constant_masked = ['0' '1' 'x']
 let integer_constant_masked =
@@ -132,6 +138,7 @@ rule tokenize = parse
     | "//"                          { singleline_comment lexbuf; tokenize lexbuf }
     | integer_constant              { INTEGER_CONSTANT (convert_string_to_integer (Lexing.lexeme lexbuf)) }
     | integer_constant_masked       { INTEGER_CONSTANT_MASKED (remove_quotes (Lexing.lexeme lexbuf)) }
+    | real_constant                 { REAL_CONSTANT (convert_string_to_real (Lexing.lexeme lexbuf)) }
     | "<<"                          { LTLT }
     | ">>"                          { GTGT }
     | "=="                          { EQEQ }

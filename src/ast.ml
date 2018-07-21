@@ -69,6 +69,7 @@ and expression =
 and constant =
   | BooleanValue of bool
   | IntegerValue of int
+  | RealValue of float
 
 and definition =
   | VariableDefinition of qualified_type * string * expression option
@@ -169,6 +170,7 @@ and pp_field_access_expression expression field_name =
 and pp_constant expression = match expression with
   | BooleanValue (value) -> Printf.sprintf "BooleanValue { %b }" value
   | IntegerValue (value) -> Printf.sprintf "IntegerValue { %u }" value
+  | RealValue (value) -> Printf.sprintf "IntegerValue { %f }" value
 
 and pp_variable_expression identifier = match identifier with
   | Identifier(name) ->  Printf.sprintf "VariableExpression { %s }" name
@@ -220,6 +222,7 @@ let print_tree node =
         match value with
         | BooleanValue (value) -> Printf.printf "%s%s──➤ %b\n" path_string branch_corner value
         | IntegerValue (value) -> Printf.printf "%s%s──➤ %u\n" path_string branch_corner value
+        | RealValue (value) -> Printf.printf "%s%s──➤ %f\n" path_string branch_corner value
       end
 
     | VariableExpression (value) ->
@@ -272,23 +275,49 @@ and pp_definition = function
         (Option.value_map iExpr ~default:"" ~f:pp_expression)
     end
 
-  | FunctionDefinition (_,_,_,_) ->
+  | FunctionDefinition (qType,fName,parameters,statements) ->
     begin
-      Printf.printf "Unknown";
+      Printf.printf "FunctionDefinition\n";
+      Printf.printf "  name -> %s\n" fName;
+      Printf.printf "  ret -> %s\n" (pp_qualified_type qType);
+      List.iter
+        (fun parameter -> Printf.printf "  param -> %s\n" (pp_function_parameter parameter))
+        parameters
+      ;
+
+      Printf.printf "  %s\n" (pp_statement statements)
     end
 
-  | TypeDefinition (_) ->
+  | TypeDefinition (name) ->
     begin
-      Printf.printf "Unknown";
+      Printf.printf "TypeDefinition -> %s" name
     end
 
-and pp_statement = "TODO:"
+and pp_statement = function
+  | EmptyStatement -> "emtpy"
+  | ExpressionStatement (expression) -> ""
+  | CompoundStatement (statements) -> ""
+  | BreakStatement -> ""
+  | IfStatement (expression, if_statements, else_statements) -> ""
+  | CaseStatement (expression, statement) -> ""
+  | WhenStatement (expression, statement) -> ""
+  | OtherwiseStatement (statement) -> ""
+  | ForStatement (from_expr, to_expr, statement) -> ""
+  | RepeatStatement (statement, expression) -> ""
+  | ReturnStatement (expression) -> ""
+  | DefinitionStatement (definition) -> ""
 
-and pp_types = "TODO:"
+and pp_types = function
+  | Enumeration (name, fields) -> "enum"
+  | BitString (name, size) -> "bitstring"
 
-and pp_function_parameter = "TODO:"
+and pp_function_parameter = function
+  | FunctionParameter (qType, name) ->
+    begin
+      Printf.sprintf "FunctionParameter -> name=%s type=%s" name (pp_qualified_type qType);
+    end
 
 (* Pretty print starting point for programs. *)
 and pp_program program =
-  Printf.printf "program";
+  Printf.printf "program\n";
   List.iter pp_definition program

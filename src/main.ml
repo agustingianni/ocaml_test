@@ -32,7 +32,7 @@ let print_expression_tree expression =
 
 let print_program program =
   let buffer = Lexing.from_string program in
-  Parser.program Lexer.tokenize buffer
+  pp_program (Parser.program Lexer.tokenize buffer)
 
 let _ =
   try
@@ -84,9 +84,21 @@ let _ =
     print_expression "(1+2+3+4+5)";
     print_expression "aaaa[1]"; *)
 
-    ignore (print_program "real fname() {}");
+    (* Test variable declaration. *)
+    ignore (print_program "integer variable;");
+    ignore (print_program "boolean variable;");
     ignore (print_program "real variable;");
-    ignore (print_program "real variable = 1000;");
+    ignore (print_program "bit variable;");
+    ignore (print_program "bitstring(32) variable;");
+
+    ignore (print_program "integer variable = 1;");
+    ignore (print_program "boolean variable = TRUE;");
+    ignore (print_program "real variable = 1.0;");
+    ignore (print_program "bit variable = '1';");
+    ignore (print_program "bitstring(32) variable = '1';");
+
+
+    ignore (print_program "real fname() {}");
 
     (* let token = parse_string "1\n" in
     Printf.printf "Is equal = %b\n" (token = (ConstantExpression (IntegerValue 2))); *)

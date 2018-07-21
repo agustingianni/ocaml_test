@@ -4,6 +4,7 @@
 %}
 
 %token <int> INTEGER_CONSTANT
+%token <float> REAL_CONSTANT
 %token <string> IDENTIFIER
 %token <string> TYPENAME
 %token <string> INTEGER_CONSTANT_MASKED
@@ -36,7 +37,10 @@
 (* Declare a start symbol. This will be the entry point of our grammar and can be called with Parser.program *)
 %start test_expression program
 
+(* A program is a list of global definitions, that is variables and functions. *)
 %type <Ast.definition list> program
+
+(* We also support evaluating expressions by themselves. *)
 %type <Ast.expression> expression
 %type <Ast.expression> test_expression
 
@@ -85,6 +89,7 @@ paren_comma_expression:
 primary_expression:
     | IDENTIFIER                                                    { VariableExpression (Identifier $1) }
     | INTEGER_CONSTANT                                              { ConstantExpression (IntegerValue $1) }
+    | REAL_CONSTANT                                                 { ConstantExpression (RealValue $1) }
     | TRUE                                                          { ConstantExpression (BooleanValue true) }
     | FALSE                                                         { ConstantExpression (BooleanValue false) }
     | LPAREN expression RPAREN                                      { $2 }
