@@ -9,7 +9,7 @@ and type_specifier =
   | TypeBoolean
   | TypeReal
   | TypeBitString of expression
-  | TypeArray of qualified_type
+  | TypeArray of qualified_type * string * expression
   | TypeStruct of string * struct_field list
   | TypeEnumeration of string * enumeration_value list
 
@@ -251,7 +251,7 @@ and pp_type_specifier = function
   | TypeBoolean -> "boolean"
   | TypeReal -> "real"
   | TypeBitString (expression) -> Printf.sprintf "bitstring(%s)" (pp_expression expression)
-  | TypeArray (qualified_type) -> Printf.sprintf "array(%s)" (pp_qualified_type qualified_type)
+  | TypeArray (qualified_type, name, expr) -> Printf.sprintf "array(%s)" (pp_qualified_type qualified_type)
   | TypeStruct (name, fields) -> "struct"
   | TypeEnumeration (name, values) -> "enum"
 

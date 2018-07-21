@@ -201,9 +201,9 @@ type_specifier:
     | INTEGER                                                       { TypeInteger }
     | BOOLEAN                                                       { TypeBoolean }
     | REAL                                                          { TypeReal }
-    | BIT                                                           { TypeBitString (ConstantExpression (IntegerValue 1)) }
-    | ARRAY qualified_type                                          { TypeArray $2 }
     | BITSTRING LPAREN expression RPAREN                            { TypeBitString $3 }
+    | BIT                                                           { TypeBitString (ConstantExpression (IntegerValue 1)) }
+    | ARRAY qualified_type IDENTIFIER LBRACK expression RBRACK      { TypeArray ($2, $3, $5) }
 
 (* Qualifiers for types, we only support const. *)
 type_qualifier:
