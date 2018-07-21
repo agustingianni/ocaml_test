@@ -33,23 +33,12 @@
 %token IMPLEMENTATION_DEFINED
 %token SUBARCHITECTURE_DEFINED
 
-(*
- * TODO: Implement this and test.
- * Precedence directives: (example)
- * Weaker are specified first.
- *
- * %nonassoc IF
- * %nonassoc ELSE
- * %nonassoc EQ NEQ
- * %left PLUS MINUS
- * %left TIMES DIV
- * %right EXP
- *)
-
 (* Declare a start symbol. This will be the entry point of our grammar and can be called with Parser.program *)
-%start expression program
+%start test_expression program
+
 %type <Ast.definition list> program
 %type <Ast.expression> expression
+%type <Ast.expression> test_expression
 
 (* End of declarations. *)
 %%
@@ -165,7 +154,10 @@ assignment_expression:
     | unary_expression EQ assignment_expression                     { BinaryExpression (ASSIGN, $1, $3) }
 
 expression:
-    | assignment_expression EOL                                     { $1 }
+    | assignment_expression                                         { $1 }
+
+test_expression:
+    | expression EOF                                                { $1 }
 
 constant_expression:
 	| conditional_expression                                        { $1 }

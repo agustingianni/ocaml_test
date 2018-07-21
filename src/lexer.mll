@@ -127,7 +127,7 @@ let integer_constant_masked =
 (* This function is accessible from Lexer.tokenize from our .ml file. *)
 rule tokenize = parse
     | whitespace_char_no_newline+   { tokenize lexbuf }
-    | newline                       { initial_linebegin lexbuf ; EOL }
+    | newline                       { initial_linebegin lexbuf }
     | "/*"                          { multiline_comment lexbuf; tokenize lexbuf }
     | "//"                          { singleline_comment lexbuf; tokenize lexbuf }
     | integer_constant              { INTEGER_CONSTANT (convert_string_to_integer (Lexing.lexeme lexbuf)) }

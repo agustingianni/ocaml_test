@@ -1,3 +1,6 @@
+open Core.Option
+module Option = Core.Option
+
 type identifier =
   | Identifier of string
 
@@ -7,8 +10,14 @@ and type_specifier =
   | TypeReal
   | TypeBitString of expression
   | TypeArray of qualified_type
-  | TypeStruct of string * (qualified_type * string) list
-  | TypeEnumeration of string * (string * expression) list
+  | TypeStruct of string * struct_field list
+  | TypeEnumeration of string * enumeration_value list
+
+and struct_field =
+  | StructField of qualified_type * string
+
+and enumeration_value =
+  | EnumerationValue of string * expression option
 
 and type_qualifier =
   | TypeQualifierConstant
@@ -64,6 +73,7 @@ and constant =
 and definition =
   | VariableDefinition of qualified_type * string * expression option
   | FunctionDefinition of qualified_type * string * function_parameter list * statement
+  | TypeDefinition of string
 
 and statement =
   | EmptyStatement
@@ -89,15 +99,13 @@ and program =
 and function_parameter =
   | FunctionParameter of qualified_type * string
 
-let unary_operator_to_string operator =
-  match operator with
+let pp_unary_operator = function
   | PLUS -> "PLUS"
   | MINUS -> "MINUS"
   | NOT -> "NOT"
   | BNOT -> "BNOT"
 
-let binary_operator_to_string operator =
-  match operator with
+let pp_binary_operator = function
   | ADD -> "+"
   | SUB -> "-"
   | MUL -> "*"
@@ -122,47 +130,47 @@ let binary_operator_to_string operator =
   | SHR -> ">>"
   | IN -> "IN"
 
-let rec expression_to_string expression = match expression with
+let rec pp_expression expression = match expression with
   | EmptyExpression  -> "EmptyExpression"
-  | UnaryExpression (o, e)  -> unary_expression_to_string o e
-  | BinaryExpression (o, e0, e1)  -> binary_expression_to_string o e0 e1
-  | FunctionCallExpression (e0, el1) -> function_call_expression_to_string e0 el1
-  | IndexExpression (e0, e1) -> index_expression_to_string e0 e1
-  | FieldAccessExpression (e, n) -> field_access_expression_to_string e n
-  | ConstantExpression (value) -> constant_expression_to_string value
-  | VariableExpression (i) -> variable_expression_to_string i
+  | UnaryExpression (o, e)  -> pp_unary_expression o e
+  | BinaryExpression (o, e0, e1)  -> pp_binary_expression o e0 e1
+  | FunctionCallExpression (e0, el1) -> pp_function_call_expression e0 el1
+  | IndexExpression (e0, e1) -> pp_index_expression e0 e1
+  | FieldAccessExpression (e, n) -> pp_field_access_expression e n
+  | ConstantExpression (value) -> pp_constant value
+  | VariableExpression (i) -> pp_variable_expression i
 
-and unary_expression_to_string operator expression =
+and pp_unary_expression operator expression =
   Printf.sprintf "UnaryExpression { %s %s }"
-    (unary_operator_to_string operator)
-    (expression_to_string expression)
+    (pp_unary_operator operator)
+    (pp_expression expression)
 
-and binary_expression_to_string operator expression0 expression1 =
+and pp_binary_expression operator expression0 expression1 =
   Printf.sprintf "BinaryExpression { %s %s %s }"
-    (binary_operator_to_string operator)
-    (expression_to_string expression0)
-    (expression_to_string expression1)
+    (pp_binary_operator operator)
+    (pp_expression expression0)
+    (pp_expression expression1)
 
-and function_call_expression_to_string expression0 expression1 =
+and pp_function_call_expression expression0 expression1 =
   Printf.sprintf "FunctionCallExpression { %s %s }"
-    (expression_to_string expression0)
-    "(expression_to_string expression1)"
+    (pp_expression expression0)
+    "(pp_expression expression1)"
 
-and index_expression_to_string expression0 expression1 =
+and pp_index_expression expression0 expression1 =
   Printf.sprintf "IndexExpression { %s %s }"
-    (expression_to_string expression0)
-    (expression_to_string expression1)
+    (pp_expression expression0)
+    (pp_expression expression1)
 
-and field_access_expression_to_string expression field_name =
+and pp_field_access_expression expression field_name =
   Printf.sprintf "FieldAccessExpression { %s %s }"
-    (expression_to_string expression)
+    (pp_expression expression)
     field_name
 
-and constant_expression_to_string expression = match expression with
+and pp_constant expression = match expression with
   | BooleanValue (value) -> Printf.sprintf "BooleanValue { %b }" value
   | IntegerValue (value) -> Printf.sprintf "IntegerValue { %u }" value
 
-and variable_expression_to_string identifier = match identifier with
+and pp_variable_expression identifier = match identifier with
   | Identifier(name) ->  Printf.sprintf "VariableExpression { %s }" name
 
 let to_pairs xs =
@@ -201,7 +209,7 @@ let print_tree node =
     match node with
     | BinaryExpression (op, lhs, rhs) ->
       begin
-        let value = (binary_operator_to_string op) in
+        let value = (pp_binary_operator op) in
         print_tree_int rhs (path @ [Right]);
         Printf.printf "%s%s─┤ %s\n" path_string branch_corner value;
         print_tree_int lhs (path @ [Left]);
@@ -214,11 +222,73 @@ let print_tree node =
         | IntegerValue (value) -> Printf.printf "%s%s──➤ %u\n" path_string branch_corner value
       end
 
+    | VariableExpression (value) ->
+      begin
+        match value with
+        | Identifier (value) -> Printf.printf "%s%s──➤ %s\n" path_string branch_corner value
+      end
+
     | _ ->
       begin
-        Printf.printf "TODO"
+        Printf.printf "%s%s──➤ %s\n" path_string branch_corner "TODO"
       end
 
     in
 
     print_tree_int node [Root]
+
+let rec pp_identifier = function
+  | Identifier (name) -> Printf.sprintf "ID(%s)" name
+
+and pp_type_qualifier = function
+  | TypeQualifierConstant -> "const"
+
+and pp_type_specifier = function
+  | TypeInteger -> "integer"
+  | TypeBoolean -> "boolean"
+  | TypeReal -> "real"
+  | TypeBitString (expression) -> Printf.sprintf "bitstring(%s)" (pp_expression expression)
+  | TypeArray (qualified_type) -> Printf.sprintf "array(%s)" (pp_qualified_type qualified_type)
+  | TypeStruct (name, fields) -> "struct"
+  | TypeEnumeration (name, values) -> "enum"
+
+and pp_qualified_type = function
+  | QualifiedType (type_qualifier, type_specifier) ->
+      Option.value_map type_qualifier ~default:"" ~f:pp_type_qualifier ^ pp_type_specifier type_specifier
+
+and pp_struct_field = function
+  | StructField (field_type, field_name) -> Printf.sprintf "%s %s" (pp_qualified_type field_type) field_name
+
+and pp_enumeration_value = function
+  | EnumerationValue (name, value) ->
+    Printf.sprintf "%s %s" name (Option.value_map value ~default:"" ~f:pp_expression)
+
+and pp_definition = function
+  | VariableDefinition (qType, vName, iExpr) ->
+    begin
+      Printf.printf "VariableDefinition type=%s name=%s init_expr=%s"
+        (pp_qualified_type qType)
+        vName
+        (Option.value_map iExpr ~default:"" ~f:pp_expression)
+    end
+
+  | FunctionDefinition (_,_,_,_) ->
+    begin
+      Printf.printf "Unknown";
+    end
+
+  | TypeDefinition (_) ->
+    begin
+      Printf.printf "Unknown";
+    end
+
+and pp_statement = "TODO:"
+
+and pp_types = "TODO:"
+
+and pp_function_parameter = "TODO:"
+
+(* Pretty print starting point for programs. *)
+and pp_program program =
+  Printf.printf "program";
+  List.iter pp_definition program
