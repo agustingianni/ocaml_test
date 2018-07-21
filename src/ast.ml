@@ -12,6 +12,10 @@ and type_specifier =
   | TypeArray of qualified_type * string * expression
   | TypeStruct of string * struct_field list
   | TypeEnumeration of string * enumeration_value list
+  | TypeList of list_element list
+
+and list_element =
+  | ListElement of qualified_type * string
 
 and struct_field =
   | StructField of qualified_type * string
@@ -254,6 +258,7 @@ and pp_type_specifier = function
   | TypeArray (qualified_type, name, expr) -> Printf.sprintf "array(%s)" (pp_qualified_type qualified_type)
   | TypeStruct (name, fields) -> "struct"
   | TypeEnumeration (name, values) -> "enum"
+  | TypeList (elements) -> "list"
 
 and pp_qualified_type = function
   | QualifiedType (type_qualifier, type_specifier) ->
