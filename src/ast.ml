@@ -21,7 +21,7 @@ and struct_field =
   | StructField of qualified_type * string
 
 and enumeration_value =
-  | EnumerationValue of string * expression option
+  | EnumerationValue of string
 
 and type_qualifier =
   | TypeQualifierConstant
@@ -268,8 +268,7 @@ and pp_struct_field = function
   | StructField (field_type, field_name) -> Printf.sprintf "%s %s" (pp_qualified_type field_type) field_name
 
 and pp_enumeration_value = function
-  | EnumerationValue (name, value) ->
-    Printf.sprintf "%s %s" name (Option.value_map value ~default:"" ~f:pp_expression)
+  | EnumerationValue (name) -> name
 
 and pp_definition = function
   | VariableDefinition (qType, vName, iExpr) ->

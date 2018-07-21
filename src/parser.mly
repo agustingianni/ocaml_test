@@ -205,6 +205,13 @@ type_specifier:
     | BIT                                                           { TypeBitString (ConstantExpression (IntegerValue 1)) }
     | ARRAY qualified_type IDENTIFIER LBRACK expression RBRACK      { TypeArray ($2, $3, $5) }
     | LPAREN list_elements RPAREN                                   { TypeList $2 }
+    | ENUMERATION IDENTIFIER LBRACE enumeration_elements RBRACE     { TypeEnumeration ($2, $4) }
+
+enumeration_elements:
+    | separated_nonempty_list(COMMA, enumeration_element)           { $1 }
+
+enumeration_element:
+    | IDENTIFIER                                                    { EnumerationValue $1 }
 
 list_elements:
     | separated_nonempty_list(COMMA, list_element)                  { $1 }
