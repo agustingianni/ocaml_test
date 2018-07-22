@@ -78,7 +78,7 @@ and constant =
 and definition =
   | VariableDefinition of qualified_type * string * expression option
   | FunctionDefinition of qualified_type * string * function_parameter list * statement
-  | TypeDefinition of string
+  | TypeDefinition of qualified_type
 
 and statement =
   | EmptyStatement
@@ -292,9 +292,9 @@ and pp_definition = function
       Printf.printf "  %s\n" (pp_statement statements)
     end
 
-  | TypeDefinition (name) ->
+  | TypeDefinition (qType) ->
     begin
-      Printf.printf "TypeDefinition -> %s" name
+      Printf.printf "TypeDefinition -> %s" (pp_qualified_type qType)
     end
 
 and pp_statement = function

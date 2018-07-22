@@ -171,16 +171,20 @@ constant_expression:
 
 (* A program consisting of a translation unit. *)
 program:
-    | translation_unit_file EOF    			                        { $1 }
+    | translation_unit EOF    			                            { $1 }
 
 (* Collection of external declarations. *)
-translation_unit_file:
+translation_unit:
     | list(external_declaration)                                    { $1 }
 
 (* Variable/function definitions outside a function. *)
 external_declaration:
     | function_definition                                           { $1 }
     | variable_definition                                           { $1 }
+    | type_definition                                               { $1 }
+
+type_definition:
+    | qualified_type SEMICOLON                                      { TypeDefinition $1 }
 
 (* Definition of a variable. *)
 variable_definition:
