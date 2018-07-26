@@ -28,7 +28,7 @@
         ("endcase", ENDCASE);
         ("return", RETURN);
         ("bit", BIT);
-        ("bitstring", BITSTRING);
+        ("bits", BITSTRING);
         ("integer", INTEGER);
         ("boolean", BOOLEAN);
         ("real", REAL);

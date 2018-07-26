@@ -190,6 +190,7 @@ type_definition:
 variable_definition:
     | qualified_type IDENTIFIER EQ expression SEMICOLON             { VariableDefinition ($1, $2, Some $4) }
     | qualified_type IDENTIFIER SEMICOLON                           { VariableDefinition ($1, $2, None) }
+    | qualified_type IDENTIFIER LBRACK expression RBRACK SEMICOLON  { ArrayDefinition ($1, $2, $4) }
 
 (* Definition of a function. *)
 function_definition:
@@ -200,14 +201,14 @@ qualified_type:
     | type_specifier                                                { QualifiedType (None, $1) }
     | type_qualifier type_specifier                                 { QualifiedType (Some $1, $2) }
 
-(* Language types. *)
+(* Type specifiers in declarations define the type of a variable or function declaration. *)
 type_specifier:
     | INTEGER                                                       { TypeInteger }
     | BOOLEAN                                                       { TypeBoolean }
     | REAL                                                          { TypeReal }
     | BITSTRING LPAREN expression RPAREN                            { TypeBitString $3 }
     | BIT                                                           { TypeBitString (ConstantExpression (IntegerValue 1)) }
-    | ARRAY qualified_type IDENTIFIER LBRACK expression RBRACK      { TypeArray ($2, $3, $5) }
+    | ARRAY qualified_type                                          { TypeArray ($2) }
     | LPAREN list_elements RPAREN                                   { TypeList $2 }
     | ENUMERATION IDENTIFIER LBRACE enumeration_elements RBRACE     { TypeEnumeration ($2, $4) }
 

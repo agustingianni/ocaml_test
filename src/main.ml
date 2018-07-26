@@ -38,25 +38,25 @@ let test_variable_declarations () =
   print_program "boolean variable;";
   print_program "real variable;";
   print_program "bit variable;";
-  print_program "bitstring(32) variable;";
+  print_program "bits(32) variable;";
 
   print_program "integer variable = 1;";
   print_program "boolean variable = TRUE;";
   print_program "real variable = 1.0;";
   print_program "bit variable = '1';";
-  print_program "bitstring(32) variable = '1'"
+  print_program "bits(32) variable = '1';";
+  print_program "array bits(64) RC[32];"
 
 let test_function_declaration () =
   print_program "real fname() {};"
 
 let _ =
   try
-    (* test_variable_declarations (); *)
+    test_variable_declarations ();
     (* test_function_declaration (); *)
 
-    (* print_program "array integer variable[0];"; *)
-
-    print_program "enumeration enum_name { SomeID };";
+    (* print_program "enumeration enum_name { SomeID };"; *)
+    (* print_program "(integer hola) pepe;"; *)
 
   with e ->
     Printf.printf "Exception -> %s\n" (Printexc.to_string e);

@@ -9,7 +9,7 @@ and type_specifier =
   | TypeBoolean
   | TypeReal
   | TypeBitString of expression
-  | TypeArray of qualified_type * string * expression
+  | TypeArray of qualified_type
   | TypeStruct of string * struct_field list
   | TypeEnumeration of string * enumeration_value list
   | TypeList of list_element list
@@ -76,6 +76,7 @@ and constant =
   | RealValue of float
 
 and definition =
+  | ArrayDefinition of qualified_type * string * expression
   | VariableDefinition of qualified_type * string * expression option
   | FunctionDefinition of qualified_type * string * function_parameter list * statement
   | TypeDefinition of qualified_type
@@ -254,8 +255,8 @@ and pp_type_specifier = function
   | TypeInteger -> "integer"
   | TypeBoolean -> "boolean"
   | TypeReal -> "real"
-  | TypeBitString (expression) -> Printf.sprintf "bitstring(%s)" (pp_expression expression)
-  | TypeArray (qualified_type, name, expr) -> Printf.sprintf "array(%s)" (pp_qualified_type qualified_type)
+  | TypeBitString (expression) -> Printf.sprintf "bits(%s)" (pp_expression expression)
+  | TypeArray (qualified_type) -> Printf.sprintf "array(%s)" (pp_qualified_type qualified_type)
   | TypeStruct (name, fields) -> "struct"
   | TypeEnumeration (name, values) -> "enum"
   | TypeList (elements) -> "list"
@@ -297,6 +298,14 @@ and pp_definition = function
       Printf.printf "TypeDefinition -> %s" (pp_qualified_type qType)
     end
 
+  | ArrayDefinition (qType, vName, iExpr) ->
+    begin
+      Printf.printf "ArrayDefinition type=%s name=%s size=%s"
+        (pp_qualified_type qType)
+        vName
+        (pp_expression iExpr)
+    end
+
 and pp_statement = function
   | EmptyStatement -> "emtpy"
   | ExpressionStatement (expression) -> ""
@@ -313,7 +322,7 @@ and pp_statement = function
 
 and pp_types = function
   | Enumeration (name, fields) -> "enum"
-  | BitString (name, size) -> "bitstring"
+  | BitString (name, size) -> "bits"
 
 and pp_function_parameter = function
   | FunctionParameter (qType, name) ->
