@@ -257,8 +257,18 @@ and pp_type_specifier = function
   | TypeReal -> "real"
   | TypeBitString (expression) -> Printf.sprintf "bits(%s)" (pp_expression expression)
   | TypeArray (qualified_type) -> Printf.sprintf "array(%s)" (pp_qualified_type qualified_type)
-  | TypeStruct (name, fields) -> "struct"
-  | TypeEnumeration (name, values) -> "enum"
+  | TypeStruct (name, fields) ->
+    begin
+      Printf.sprintf "struct { %s }"
+        (fields |> List.map pp_struct_field |> String.concat ", ")
+    end
+
+  | TypeEnumeration (name, values) ->
+    begin
+      Printf.sprintf "enum { %s }"
+        (values |> List.map pp_enumeration_value |> String.concat ", ")
+    end
+
   | TypeList (elements) -> "list"
 
 and pp_qualified_type = function
