@@ -207,7 +207,7 @@ type_specifier:
     | REAL                                                          { TypeReal }
     | BITSTRING LPAREN expression RPAREN                            { TypeBitString $3 }
     | BIT                                                           { TypeBitString (ConstantExpression (IntegerValue 1)) }
-    | ARRAY qualified_type                                          { TypeArray ($2) }
+    | ARRAY qualified_type                                          { TypeArray $2 }
     | LPAREN list_elements RPAREN                                   { TypeList $2 }
     | ENUMERATION IDENTIFIER LBRACE enumeration_elements RBRACE     { TypeEnumeration ($2, $4) }
 
@@ -235,7 +235,7 @@ parameter_declaration:
     | qualified_type IDENTIFIER                                     { FunctionParameter ($1, $2) }
 
 block_element:
-    | variable_definition                                           { DefinitionStatement ($1) }
+    | variable_definition                                           { DefinitionStatement $1 }
     | statement                                                     { $1 }
 
 block_element_list:
@@ -243,13 +243,13 @@ block_element_list:
 
 labeled_statement:
     | WHEN constant_expression statement                            { WhenStatement ($2, $3) }
-    | OTHERWISE statement                                           { OtherwiseStatement ($2) }
+    | OTHERWISE statement                                           { OtherwiseStatement $2 }
 
 compound_statement:
-    | LBRACE block_element_list RBRACE                              { CompoundStatement ($2) }
+    | LBRACE block_element_list RBRACE                              { CompoundStatement $2 }
 
 expression_statement:
-    | expression SEMICOLON                                          { ExpressionStatement ($1) }
+    | expression SEMICOLON                                          { ExpressionStatement $1 }
 
 selection_statement:
     | IF expression THEN statement ENDIF                            { IfStatement ($2, $4, EmptyStatement) }
@@ -261,8 +261,8 @@ iteration_statement:
     | REPEAT statement UNTIL expression                             { RepeatStatement ($2, $4) }
 
 jump_statement:
-    | RETURN SEMICOLON                                              { ReturnStatement (EmptyExpression) }
-    | RETURN expression SEMICOLON                                   { ReturnStatement ($2) }
+    | RETURN SEMICOLON                                              { ReturnStatement EmptyExpression }
+    | RETURN expression SEMICOLON                                   { ReturnStatement $2 }
 
 statement:
     | expression_statement                                          { $1 }
