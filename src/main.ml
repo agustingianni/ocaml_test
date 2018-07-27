@@ -55,6 +55,7 @@ let test_program () =
   {|
 
     real global_variable;
+    array real global_array[128];
 
     real fname() {
       integer var00;

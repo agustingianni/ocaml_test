@@ -279,10 +279,10 @@ and pp_enumeration_value = function
 and pp_definition = function
   | VariableDefinition (qType, vName, iExpr) ->
     begin
-      Printf.printf "VariableDefinition type=%s name=%s init_expr=%s"
+      Printf.printf "VariableDefinition type=%s name=%s init_expr=%s\n"
         (pp_qualified_type qType)
         vName
-        (Option.value_map iExpr ~default:"" ~f:pp_expression)
+        (Option.value_map iExpr ~default:"None" ~f:pp_expression)
     end
 
   | FunctionDefinition (qType,fName,parameters,statements) ->
@@ -300,7 +300,7 @@ and pp_definition = function
 
   | ArrayDefinition (qType, vName, iExpr) ->
     begin
-      Printf.printf "ArrayDefinition type=%s name=%s size=%s"
+      Printf.printf "ArrayDefinition type=%s name=%s size=%s\n"
         (pp_qualified_type qType)
         vName
         (pp_expression iExpr)
