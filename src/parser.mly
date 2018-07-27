@@ -198,8 +198,7 @@ function_definition:
 
 (* Fully qualified type. *)
 qualified_type:
-    | type_specifier                                                { QualifiedType (None, $1) }
-    | type_qualifier type_specifier                                 { QualifiedType (Some $1, $2) }
+    | type_qualifier? type_specifier                                { QualifiedType ($1, $2) }
 
 (* Type specifiers in declarations define the type of a variable or function declaration. *)
 type_specifier:
