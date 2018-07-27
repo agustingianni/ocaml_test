@@ -50,9 +50,25 @@ let test_variable_declarations () =
 let test_function_declaration () =
   print_program "real fname() {};"
 
+let test_program () =
+  print_program
+  {|
+
+    real global_variable;
+
+    real fname() {
+      integer var00;
+      1+2;
+      fname();
+    }
+
+  |}
+
 let _ =
   try
-    test_variable_declarations ();
+    test_program ();
+
+    (* test_variable_declarations (); *)
     (* test_function_declaration (); *)
 
     (* print_program "enumeration enum_name { SomeID };"; *)

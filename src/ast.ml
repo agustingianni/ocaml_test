@@ -79,7 +79,6 @@ and definition =
   | ArrayDefinition of qualified_type * string * expression
   | VariableDefinition of qualified_type * string * expression option
   | FunctionDefinition of qualified_type * string * function_parameter list * statement
-  | TypeDefinition of qualified_type
 
 and statement =
   | EmptyStatement
@@ -94,10 +93,6 @@ and statement =
   | RepeatStatement of statement * expression
   | ReturnStatement of expression
   | DefinitionStatement of definition
-
-and types =
-  | Enumeration of string * string list
-  | BitString of string * int
 
 and program =
   | Program of statement list
@@ -300,12 +295,7 @@ and pp_definition = function
         parameters
       ;
 
-      Printf.printf "  %s\n" (pp_statement statements)
-    end
-
-  | TypeDefinition (qType) ->
-    begin
-      Printf.printf "TypeDefinition -> %s" (pp_qualified_type qType)
+      pp_statement statements
     end
 
   | ArrayDefinition (qType, vName, iExpr) ->
@@ -317,22 +307,73 @@ and pp_definition = function
     end
 
 and pp_statement = function
-  | EmptyStatement -> "emtpy"
-  | ExpressionStatement (expression) -> ""
-  | CompoundStatement (statements) -> ""
-  | BreakStatement -> ""
-  | IfStatement (expression, if_statements, else_statements) -> ""
-  | CaseStatement (expression, statement) -> ""
-  | WhenStatement (expression, statement) -> ""
-  | OtherwiseStatement (statement) -> ""
-  | ForStatement (from_expr, to_expr, statement) -> ""
-  | RepeatStatement (statement, expression) -> ""
-  | ReturnStatement (expression) -> ""
-  | DefinitionStatement (definition) -> ""
+  | EmptyStatement -> Printf.printf "emtpy\n"
+  | ExpressionStatement (expression) ->
+    begin
+      Printf.printf "ExpressionStatement\n";
+      Printf.printf "%s\n" (pp_expression expression)
+    end
 
-and pp_types = function
-  | Enumeration (name, fields) -> "enum"
-  | BitString (name, size) -> "bits"
+  | CompoundStatement (statements) ->
+    begin
+      List.iter pp_statement statements
+    end
+
+  | BreakStatement -> Printf.printf "BreakStatement\n"
+  | IfStatement (expression, if_statements, else_statements) ->
+    begin
+      Printf.printf "IfStatement\n";
+      Printf.printf "%s\n" (pp_expression expression);
+      pp_statement if_statements;
+      pp_statement else_statements
+    end
+
+  | CaseStatement (expression, statement) ->
+    begin
+      Printf.printf "CaseStatement\n";
+      Printf.printf "%s\n" (pp_expression expression);
+      pp_statement statement
+    end
+
+  | WhenStatement (expression, statement) ->
+    begin
+      Printf.printf "WhenStatement\n";
+      Printf.printf "%s\n" (pp_expression expression);
+      pp_statement statement
+    end
+
+  | OtherwiseStatement (statement) ->
+    begin
+      Printf.printf "OtherwiseStatement\n";
+      pp_statement statement
+    end
+
+  | ForStatement (from_expr, to_expr, statement) ->
+    begin
+      Printf.printf "ForStatement\n";
+      Printf.printf "%s\n" (pp_expression from_expr);
+      Printf.printf "%s\n" (pp_expression to_expr);
+      pp_statement statement
+    end
+
+  | RepeatStatement (statement, expression) ->
+    begin
+      Printf.printf "RepeatStatement\n";
+      Printf.printf "%s\n" (pp_expression expression);
+      pp_statement statement
+    end
+
+  | ReturnStatement (expression) ->
+    begin
+      Printf.printf "ReturnStatement\n";
+      Printf.printf "%s\n" (pp_expression expression)
+    end
+
+  | DefinitionStatement (definition) ->
+    begin
+      Printf.printf "DefinitionStatement\n";
+      pp_definition definition
+    end
 
 and pp_function_parameter = function
   | FunctionParameter (qType, name) ->
