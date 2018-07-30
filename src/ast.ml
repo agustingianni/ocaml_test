@@ -97,7 +97,7 @@ and statement =
   | DefinitionStatement of definition
 
 and program =
-  | Program of statement list
+  | Program of definition list
 
 and function_parameter =
   | FunctionParameter of qualified_type * string
