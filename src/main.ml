@@ -70,6 +70,8 @@ let test_program () =
       integer var00 = 1000;
       1+2;
       fname();
+
+      enumeration TestEnum { val }
     }
 
   |}

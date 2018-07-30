@@ -251,6 +251,7 @@ parameter_declaration:
 
 block_element:
     | variable_definition                                           { DefinitionStatement $1 }
+    | type_definition                                               { DefinitionStatement $1 }
     | statement                                                     { $1 }
 
 block_element_list:
