@@ -62,7 +62,11 @@ let test_program () =
     real global_variable;
     array real global_array[128];
 
-    real fname(boolean arg0, integer arg1, bit arg2, bits(32) arg3) {
+    enumeration TestEnum { val }
+
+    type TestStruct is ( integer val )
+
+    real fname(boolean arg0, integer arg1, bit arg2, bits(32) arg3, TestEnum arg4, TestStruct arg5) {
       integer var00 = 1000;
       1+2;
       fname();
@@ -72,10 +76,10 @@ let test_program () =
 
 let _ =
   try
-    (* test_program (); *)
+    test_program ();
 
-    test_type_declaration ();
-    test_enumeration_declaration ();
+    (* test_type_declaration (); *)
+    (* test_enumeration_declaration (); *)
 
     (* test_variable_declarations (); *)
     (* test_function_declaration (); *)
