@@ -13,9 +13,10 @@ and type_specifier =
   | TypeStruct of string * struct_field list
   | TypeEnumeration of string * enumeration_value list
   | TypeList of list_element list
+  | TypeNamed of string
 
 and list_element =
-  | ListElement of qualified_type * string
+  | ListElement of qualified_type
 
 and struct_field =
   | StructField of qualified_type * string
@@ -266,6 +267,7 @@ and pp_type_specifier = function
     end
 
   | TypeList (elements) -> "list"
+  | TypeNamed (name) -> Printf.sprintf "TypeNamed name=%s" name
 
 and pp_qualified_type = function
   | QualifiedType (type_qualifier, type_specifier) ->

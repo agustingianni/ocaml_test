@@ -230,13 +230,13 @@ type_specifier:
     | BIT                                                           { TypeBitString (ConstantExpression (IntegerValue 1)) }
     | ARRAY qualified_type                                          { TypeArray $2 }
     | LPAREN list_elements RPAREN                                   { TypeList $2 }
-    | ENUMERATION IDENTIFIER LBRACE enumeration_elements RBRACE     { TypeEnumeration ($2, $4) }
+    | IDENTIFIER                                                    { TypeNamed $1 }
 
 list_elements:
     | separated_nonempty_list(COMMA, list_element)                  { $1 }
 
 list_element:
-    | qualified_type IDENTIFIER                                     { ListElement ($1, $2) }
+    | qualified_type                                                { ListElement $1 }
 
 (* Qualifiers for types, we only support const. *)
 type_qualifier:
