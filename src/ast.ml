@@ -79,6 +79,7 @@ and definition =
   | ArrayDefinition of qualified_type * string * expression
   | VariableDefinition of qualified_type * string * expression option
   | FunctionDefinition of qualified_type * string * function_parameter list * statement
+  | TypeDefinition of type_specifier
 
 and statement =
   | EmptyStatement
@@ -304,6 +305,11 @@ and pp_definition = function
         (pp_qualified_type qType)
         vName
         (pp_expression iExpr)
+    end
+
+  | TypeDefinition (type_) ->
+    begin
+      Printf.printf "TypeDefinition type=%s\n" (pp_type_specifier type_)
     end
 
 and pp_statement = function

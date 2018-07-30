@@ -22,9 +22,10 @@
 %token EOF
 %token LIST
 %token EOL
+%token IS
 
 (* Types *)
-%token BIT BITSTRING INTEGER BOOLEAN REAL ENUMERATION ARRAY CONSTANT
+%token BIT BITSTRING INTEGER BOOLEAN REAL ENUMERATION ARRAY CONSTANT TYPE
 
 %token ASSERT
 %token SEE
@@ -177,10 +178,34 @@ program:
 translation_unit:
     | list(external_declaration)                                    { $1 }
 
-(* Variable/function definitions outside a function. *)
+(* Variable/function/type definitions outside a function. *)
 external_declaration:
     | function_definition                                           { $1 }
     | variable_definition                                           { $1 }
+    | type_definition                                               { $1 }
+
+(* Custom types. *)
+type_definition:
+    | struct_definition                                             { TypeDefinition $1 }
+    | enumeration_definition                                        { TypeDefinition $1 }
+
+struct_definition:
+    | TYPE IDENTIFIER IS LPAREN struct_fields RPAREN                { TypeStruct ($2, $5) }
+
+struct_fields:
+    | separated_nonempty_list(COMMA, struct_field)                  { $1 }
+
+struct_field:
+    | qualified_type IDENTIFIER                                     { StructField ($1, $2) }
+
+enumeration_definition:
+    | ENUMERATION IDENTIFIER LBRACE enumeration_elements RBRACE     { TypeEnumeration ($2, $4) }
+
+enumeration_elements:
+    | separated_nonempty_list(COMMA, enumeration_element)           { $1 }
+
+enumeration_element:
+    | IDENTIFIER                                                    { EnumerationValue $1 }
 
 (* Definition of a variable. *)
 variable_definition:
@@ -206,12 +231,6 @@ type_specifier:
     | ARRAY qualified_type                                          { TypeArray $2 }
     | LPAREN list_elements RPAREN                                   { TypeList $2 }
     | ENUMERATION IDENTIFIER LBRACE enumeration_elements RBRACE     { TypeEnumeration ($2, $4) }
-
-enumeration_elements:
-    | separated_nonempty_list(COMMA, enumeration_element)           { $1 }
-
-enumeration_element:
-    | IDENTIFIER                                                    { EnumerationValue $1 }
 
 list_elements:
     | separated_nonempty_list(COMMA, list_element)                  { $1 }

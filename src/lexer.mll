@@ -33,6 +33,8 @@
         ("boolean", BOOLEAN);
         ("real", REAL);
         ("enumeration", ENUMERATION);
+        ("type", TYPE);
+        ("is", IS);
         ("list", LIST);
         ("array", ARRAY);
         ("constant", CONSTANT);

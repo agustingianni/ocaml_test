@@ -50,15 +50,20 @@ let test_variable_declarations () =
 let test_function_declaration () =
   print_program "real fname() {};"
 
+let test_type_declaration () =
+  print_program "type ShiftSpec is (bits(2) shift, integer amount)"
+
+let test_enumeration_declaration () =
+  print_program "enumeration ExampleEnumeration {val1, val2, val3}"
+
 let test_program () =
   print_program
   {|
-
     real global_variable;
     array real global_array[128];
 
-    real fname() {
-      integer var00;
+    real fname(boolean arg0, integer arg1, bit arg2, bits(32) arg3) {
+      integer var00 = 1000;
       1+2;
       fname();
     }
@@ -67,7 +72,10 @@ let test_program () =
 
 let _ =
   try
-    test_program ();
+    (* test_program (); *)
+
+    test_type_declaration ();
+    test_enumeration_declaration ();
 
     (* test_variable_declarations (); *)
     (* test_function_declaration (); *)
