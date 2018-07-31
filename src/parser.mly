@@ -209,9 +209,15 @@ enumeration_element:
 
 (* Definition of a variable. *)
 variable_definition:
-    | qualified_type IDENTIFIER EQ expression SEMICOLON             { VariableDefinition ($1, $2, Some $4) }
-    | qualified_type IDENTIFIER SEMICOLON                           { VariableDefinition ($1, $2, None) }
+    | qualified_type init_declarator_list SEMICOLON                 { VariableDefinition ($1, $2) }
     | qualified_type IDENTIFIER LBRACK expression RBRACK SEMICOLON  { ArrayDefinition ($1, $2, $4) }
+
+init_declarator_list:
+    | separated_nonempty_list(COMMA, init_declarator)               { $1 }
+
+init_declarator:
+    | IDENTIFIER                                                    { VariableDeclarator ($1, EmptyExpression) }
+    | IDENTIFIER EQ expression                                      { VariableDeclarator ($1, $3) }
 
 (* Definition of a function. *)
 function_definition:

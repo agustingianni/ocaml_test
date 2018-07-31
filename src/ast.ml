@@ -78,9 +78,12 @@ and constant =
 
 and definition =
   | ArrayDefinition of qualified_type * string * expression
-  | VariableDefinition of qualified_type * string * expression option
+  | VariableDefinition of qualified_type * declarator list
   | FunctionDefinition of qualified_type * string * function_parameter list * statement
   | TypeDefinition of type_specifier
+
+and declarator =
+  | VariableDeclarator of string * expression
 
 and statement =
   | EmptyStatement
@@ -280,12 +283,13 @@ and pp_enumeration_value = function
   | EnumerationValue (name) -> name
 
 and pp_definition = function
-  | VariableDefinition (qType, vName, iExpr) ->
+  | VariableDefinition (qType, declarators) ->
     begin
-      Printf.printf "VariableDefinition type=%s name=%s init_expr=%s\n"
-        (pp_qualified_type qType)
-        vName
-        (Option.value_map iExpr ~default:"None" ~f:pp_expression)
+      Printf.printf "VariableDefinition type=%s\n" (pp_qualified_type qType);
+      List.iter
+        (fun declarator -> Printf.printf "  declarator -> %s\n" (pp_declarator declarator))
+        declarators
+      ;
     end
 
   | FunctionDefinition (qType,fName,parameters,statements) ->
@@ -387,6 +391,12 @@ and pp_function_parameter = function
   | FunctionParameter (qType, name) ->
     begin
       Printf.sprintf "FunctionParameter -> name=%s type=%s" name (pp_qualified_type qType);
+    end
+
+and pp_declarator = function
+  | VariableDeclarator (name, expression) ->
+    begin
+      Printf.sprintf "VariableDeclarator -> name=%s type=%s" name (pp_expression expression);
     end
 
 (* Pretty print starting point for programs. *)
