@@ -110,6 +110,18 @@ let test_program () =
           address = 3;
           address = 4;
       endif
+
+      if n == 31 then
+          address = 1;
+          address = 2;
+          address = 3;
+          address = 4;
+      else
+          address = 5;
+          address = 6;
+          address = 7;
+          address = 8;
+      endif
     }
 
   |}

@@ -255,20 +255,12 @@ parameter_list:
 parameter_declaration:
     | qualified_type IDENTIFIER                                     { FunctionParameter ($1, $2) }
 
-block_element:
-    | variable_definition                                           { DefinitionStatement $1 }
-    | type_definition                                               { DefinitionStatement $1 }
-    | statement                                                     { $1 }
-
-block_element_list:
-    | list(block_element)                                           { $1 }
-
 labeled_statement:
     | WHEN constant_expression statement_list                       { WhenStatement ($2, $3) }
     | OTHERWISE statement_list                                      { OtherwiseStatement $2 }
 
 compound_statement:
-    | LBRACE block_element_list RBRACE                              { $2 }
+    | LBRACE statement_list RBRACE                                  { $2 }
 
 expression_statement:
     | expression SEMICOLON                                          { ExpressionStatement $1 }
@@ -287,6 +279,8 @@ jump_statement:
     | RETURN expression SEMICOLON                                   { ReturnStatement $2 }
 
 statement:
+    | variable_definition                                           { DefinitionStatement $1 }
+    | type_definition                                               { DefinitionStatement $1 }
     | expression_statement                                          { $1 }
     | labeled_statement                                             { $1 }
     | selection_statement                                           { $1 }
