@@ -45,7 +45,8 @@ let test_variable_declarations () =
   print_program "real variable = 1.0;";
   print_program "bit variable = '1';";
   print_program "bits(32) variable = '1';";
-  print_program "array bits(64) RC[32];"
+  print_program "array bits(64) RC[32];";
+  print_program "integer v0, v1;"
 
 let test_function_declaration () =
   print_program "real fname() {};"
@@ -56,9 +57,27 @@ let test_type_declaration () =
 let test_enumeration_declaration () =
   print_program "enumeration ExampleEnumeration {val1, val2, val3}"
 
+let test_if_statement () =
+  print_program
+  {|
+    integer realTest() {
+      if n == 1 then
+        CheckSPAlignment();
+        address = SP;
+      endif
+    }
+  |}
+
 let test_program () =
   print_program
   {|
+
+    type AddressDescriptor is (
+      FaultRecord fault,
+      FullAddress paddress,
+      bits(64) vaddress
+    )
+
     real global_variable;
     array real global_array[128];
 
@@ -72,6 +91,25 @@ let test_program () =
       fname();
 
       enumeration TestEnum { val }
+    }
+
+    (integer, integer) returnList(boolean yes) {
+    }
+
+    integer realTest() {
+      CheckFPAdvSIMDEnabled64();
+      bits(64) address;
+      bits(64) offs;
+      bits(datasize) rval;
+      constant integer ebytes = esize DIV 8;
+      integer e, r, s, tt;
+
+      if n == 31 then
+          address = 1;
+          address = 2;
+          address = 3;
+          address = 4;
+      endif
     }
 
   |}

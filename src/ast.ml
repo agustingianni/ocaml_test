@@ -79,7 +79,7 @@ and constant =
 and definition =
   | ArrayDefinition of qualified_type * string * expression
   | VariableDefinition of qualified_type * declarator list
-  | FunctionDefinition of qualified_type * string * function_parameter list * statement
+  | FunctionDefinition of qualified_type * string * function_parameter list * statement list
   | TypeDefinition of type_specifier
 
 and declarator =
@@ -88,14 +88,13 @@ and declarator =
 and statement =
   | EmptyStatement
   | ExpressionStatement of expression
-  | CompoundStatement of statement list
   | BreakStatement
-  | IfStatement of expression * statement * statement
-  | CaseStatement of expression * statement
-  | WhenStatement of expression * statement
-  | OtherwiseStatement of statement
-  | ForStatement of expression * expression * statement
-  | RepeatStatement of statement * expression
+  | IfStatement of expression * statement list * statement list
+  | CaseStatement of expression * statement list
+  | WhenStatement of expression * statement list
+  | OtherwiseStatement of statement list
+  | ForStatement of expression * expression * statement list
+  | RepeatStatement of statement list * expression
   | ReturnStatement of expression
   | DefinitionStatement of definition
 
@@ -292,7 +291,7 @@ and pp_definition = function
       ;
     end
 
-  | FunctionDefinition (qType,fName,parameters,statements) ->
+  | FunctionDefinition (qType, fName, parameters, statement_list) ->
     begin
       Printf.printf "FunctionDefinition\n";
       Printf.printf "  name -> %s\n" fName;
@@ -302,7 +301,7 @@ and pp_definition = function
         parameters
       ;
 
-      pp_statement statements
+      pp_statement_list statement_list
     end
 
   | ArrayDefinition (qType, vName, iExpr) ->
@@ -318,6 +317,12 @@ and pp_definition = function
       Printf.printf "TypeDefinition type=%s\n" (pp_type_specifier type_)
     end
 
+and pp_statement_list statement_list =
+  List.iter
+    (fun statement -> pp_statement statement)
+    statement_list
+  ;
+
 and pp_statement = function
   | EmptyStatement -> Printf.printf "emtpy\n"
   | ExpressionStatement (expression) ->
@@ -326,53 +331,48 @@ and pp_statement = function
       Printf.printf "%s\n" (pp_expression expression)
     end
 
-  | CompoundStatement (statements) ->
-    begin
-      List.iter pp_statement statements
-    end
-
   | BreakStatement -> Printf.printf "BreakStatement\n"
   | IfStatement (expression, if_statements, else_statements) ->
     begin
       Printf.printf "IfStatement\n";
       Printf.printf "%s\n" (pp_expression expression);
-      pp_statement if_statements;
-      pp_statement else_statements
+      pp_statement_list if_statements;
+      pp_statement_list else_statements
     end
 
-  | CaseStatement (expression, statement) ->
+  | CaseStatement (expression, statement_list) ->
     begin
       Printf.printf "CaseStatement\n";
       Printf.printf "%s\n" (pp_expression expression);
-      pp_statement statement
+      pp_statement_list statement_list
     end
 
-  | WhenStatement (expression, statement) ->
+  | WhenStatement (expression, statement_list) ->
     begin
       Printf.printf "WhenStatement\n";
       Printf.printf "%s\n" (pp_expression expression);
-      pp_statement statement
+      pp_statement_list statement_list
     end
 
-  | OtherwiseStatement (statement) ->
+  | OtherwiseStatement (statement_list) ->
     begin
       Printf.printf "OtherwiseStatement\n";
-      pp_statement statement
+      pp_statement_list statement_list
     end
 
-  | ForStatement (from_expr, to_expr, statement) ->
+  | ForStatement (from_expr, to_expr, statement_list) ->
     begin
       Printf.printf "ForStatement\n";
       Printf.printf "%s\n" (pp_expression from_expr);
       Printf.printf "%s\n" (pp_expression to_expr);
-      pp_statement statement
+      pp_statement_list statement_list
     end
 
-  | RepeatStatement (statement, expression) ->
+  | RepeatStatement (statement_list, expression) ->
     begin
       Printf.printf "RepeatStatement\n";
       Printf.printf "%s\n" (pp_expression expression);
-      pp_statement statement
+      pp_statement_list statement_list
     end
 
   | ReturnStatement (expression) ->

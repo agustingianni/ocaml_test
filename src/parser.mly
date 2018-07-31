@@ -264,23 +264,23 @@ block_element_list:
     | list(block_element)                                           { $1 }
 
 labeled_statement:
-    | WHEN constant_expression statement                            { WhenStatement ($2, $3) }
-    | OTHERWISE statement                                           { OtherwiseStatement $2 }
+    | WHEN constant_expression statement_list                       { WhenStatement ($2, $3) }
+    | OTHERWISE statement_list                                      { OtherwiseStatement $2 }
 
 compound_statement:
-    | LBRACE block_element_list RBRACE                              { CompoundStatement $2 }
+    | LBRACE block_element_list RBRACE                              { $2 }
 
 expression_statement:
     | expression SEMICOLON                                          { ExpressionStatement $1 }
 
 selection_statement:
-    | IF expression THEN statement ENDIF                            { IfStatement ($2, $4, EmptyStatement) }
-    | IF expression THEN statement ELSE statement ENDIF             { IfStatement ($2, $4, $6) }
-    | CASE expression OF statement ENDCASE                          { CaseStatement ($2, $4) }
+    | IF expression THEN statement_list ENDIF                       { IfStatement ($2, $4, []) }
+    | IF expression THEN statement_list ELSE statement_list ENDIF   { IfStatement ($2, $4, $6) }
+    | CASE expression OF statement_list ENDCASE                     { CaseStatement ($2, $4) }
 
 iteration_statement:
-    | FOR expression TO expression statement ENDFOR                 { ForStatement ($2, $4, $5) }
-    | REPEAT statement UNTIL expression                             { RepeatStatement ($2, $4) }
+    | FOR expression TO expression statement_list ENDFOR            { ForStatement ($2, $4, $5) }
+    | REPEAT statement_list UNTIL expression                        { RepeatStatement ($2, $4) }
 
 jump_statement:
     | RETURN SEMICOLON                                              { ReturnStatement EmptyExpression }
@@ -289,7 +289,9 @@ jump_statement:
 statement:
     | expression_statement                                          { $1 }
     | labeled_statement                                             { $1 }
-    | compound_statement                                            { $1 }
     | selection_statement                                           { $1 }
     | iteration_statement                                           { $1 }
     | jump_statement                                                { $1 }
+
+statement_list:
+    | list(statement)                                               { $1 }
