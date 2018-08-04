@@ -154,6 +154,7 @@ logical_or_expression:
 
 conditional_expression:
     | logical_or_expression                                         { $1 }
+    | IF logical_or_expression THEN expression ELSE conditional_expression { ConditionalExpression ($2, $4, $6) }
 
 assignment_expression:
     | conditional_expression                                        { $1 }

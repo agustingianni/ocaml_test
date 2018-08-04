@@ -70,6 +70,7 @@ and expression =
   | FieldAccessExpression of expression * string
   | ConstantExpression of constant
   | VariableExpression of identifier
+  | ConditionalExpression of expression * expression * expression
 
 and constant =
   | BooleanValue of bool
@@ -144,6 +145,13 @@ let rec pp_expression expression = match expression with
   | FieldAccessExpression (e, n) -> pp_field_access_expression e n
   | ConstantExpression (value) -> pp_constant value
   | VariableExpression (i) -> pp_variable_expression i
+  | ConditionalExpression (condition, expr0, expr1) -> pp_conditional_expression condition expr0 expr1
+
+and pp_conditional_expression condition expr0 expr1 =
+  Printf.sprintf "ConditionalExpression { %s %s %s }"
+    (pp_expression condition)
+    (pp_expression expr0)
+    (pp_expression expr1)
 
 and pp_unary_expression operator expression =
   Printf.sprintf "UnaryExpression { %s %s }"
